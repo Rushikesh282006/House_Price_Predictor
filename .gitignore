@@ -1,0 +1,14 @@
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.DS_Store
+prediction.csv
+*.log
+
+# Optional environment files
+.env
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
