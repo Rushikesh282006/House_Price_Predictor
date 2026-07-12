@@ -1,84 +1,93 @@
 # House Price Prediction API
 
-This repository contains a FastAPI app for predicting California house prices using a trained RandomForest model.
+A FastAPI app that predicts California house prices using a trained RandomForest model.
 
-## Files to include in GitHub
+## What this project contains
 
-- `main.py` — FastAPI application with `/predict` and `/predict-file` endpoints
-- `train.py` — script to train the model and save `house_price_predictor.joblib`
-- `test_file.csv` — sample CSV input for batch prediction
-- `README.md` — project documentation
-- `.gitignore` — files and folders to ignore
+- `main.py` — FastAPI app with two prediction endpoints
+- `train.py` — script that trains the model and saves the required `.joblib` files
+- `test_file.csv` — example CSV input for batch prediction
 - `requirements.txt` — Python dependencies
+- `.gitignore` — files to ignore for GitHub
+- `README.md` — this documentation
 
-### Optional
 
-- `house_price_predictor.joblib` — trained model artifact
-- `house_features.joblib` — saved feature list
+That command creates both required files locally.
 
-If you do not want to include binary model files in GitHub, the reader can generate them by running `python train.py`.
+## Setup instructions
 
-## What to ignore
+1. Open PowerShell in this project folder:
 
-The repository should ignore:
+```powershell
+cd "c:\Users\Rushikesh Jagtap\.vscode\VS Code files\Learning Machine_Learning\House Price Prediction"
+```
 
-- `venv/` directory
-- `__pycache__/` Python caches
-- `prediction.csv` generated output
-- `.env` or other local environment files
+2. Create a virtual environment:
 
-## Setup
-
-1. Create a Python virtual environment:
-
-```bash
+```powershell
 python -m venv venv
 ```
 
-2. Activate the environment:
-
-- Windows PowerShell:
+3. Activate the virtual environment:
 
 ```powershell
 .\venv\Scripts\Activate.ps1
 ```
 
-- Windows CMD:
+4. Install Python dependencies:
 
-```cmd
-venv\Scripts\activate.bat
-```
-
-3. Install dependencies:
-
-```bash
+```powershell
 python -m pip install -r requirements.txt
 ```
 
-4. Train the model (if needed):
+5. Create the model files if they do not exist:
 
-```bash
+```powershell
 python train.py
 ```
 
-## Run the API
+## Run the API server
 
-```bash
+```powershell
 python -m uvicorn main:app --reload
 ```
 
-Open `http://127.0.0.1:8000/docs` to test the API.
+Then open the browser at:
 
-## Endpoints
+```text
+http://127.0.0.1:8000/docs
+```
 
-- `GET /` — health message
-- `GET /health` — model status
-- `POST /predict` — single prediction via JSON body
-- `POST /predict-file` — upload CSV file for batch prediction
+## API endpoints
 
-## CSV upload format
+### `GET /`
+Returns a basic health message.
 
-The CSV must include these headers:
+### `GET /health`
+Returns model status and average error information.
+
+### `POST /predict`
+Use this endpoint to send a single house feature set as JSON.
+
+Example request body:
+
+```json
+{
+  "MedInc": 5.0,
+  "HouseAge": 30.0,
+  "AveRooms": 6.0,
+  "AveBedrms": 1.0,
+  "Population": 1500.0,
+  "AveOccup": 3.0,
+  "Latitude": 37.0,
+  "Longitude": -121.0
+}
+```
+
+### `POST /predict-file`
+Use this endpoint to upload a CSV file with many rows for batch prediction.
+
+The CSV file must include these columns:
 
 - `MedInc`
 - `HouseAge`
@@ -89,4 +98,11 @@ The CSV must include these headers:
 - `Latitude`
 - `Longitude`
 
-Example `test_file.csv` is already provided.
+Example CSV file: `test_file.csv`
+
+## How to use the app after cloning
+
+1. Install dependencies.
+2. Run `python train.py` if model files are missing.
+3. Start the server with `python -m uvicorn main:app --reload`.
+4. Test the API at `http://127.0.0.1:8000/docs`.
