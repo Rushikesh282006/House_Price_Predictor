@@ -1,6 +1,17 @@
 # House Price Prediction API
 
-A FastAPI app that predicts California house prices using a trained RandomForest model.
+A FastAPI app that predicts California house prices using a trained `RandomForestRegressor` model.
+
+## Project overview
+
+This project demonstrates a complete machine learning deployment workflow. It trains a regression model on the California Housing dataset, saves the trained model as a serialized artifact, and exposes prediction endpoints through a FastAPI web service.
+
+## Data and model
+
+- Dataset: `sklearn.datasets.fetch_california_housing`
+- Model: `sklearn.ensemble.RandomForestRegressor`
+- Serialization: `joblib`
+- Endpoints: single JSON prediction and batch CSV upload prediction
 
 ## What this project contains
 
@@ -11,6 +22,19 @@ A FastAPI app that predicts California house prices using a trained RandomForest
 - `.gitignore` — files to ignore for GitHub
 - `README.md` — this documentation
 
+## Model evaluation
+
+The training script prints model performance metrics such as mean absolute error and R² score. These outputs provide a quick sanity check on model quality before deploying the API.
+
+## Important note about model files
+
+The trained files `house_price_predictor.joblib` and `house_features.joblib` may be large and should not be committed if GitHub rejects them.
+
+If you clone the repo and the model files are not present, run:
+
+```powershell
+python train.py
+```
 
 That command creates both required files locally.
 
@@ -59,6 +83,8 @@ http://127.0.0.1:8000/docs
 ```
 
 ## API endpoints
+
+This project supports both interactive and programmatic access. You can test the API directly from the Swagger UI at `/docs` or by sending requests from any HTTP client.
 
 ### `GET /`
 Returns a basic health message.
