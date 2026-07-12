@@ -16,10 +16,10 @@ That command creates both required files locally.
 
 ## Setup instructions
 
-1. Open PowerShell in this project folder:
+1. Open PowerShell in the project folder.
 
 ```powershell
-cd "c:\Users\Rushikesh Jagtap\.vscode\VS Code files\Learning Machine_Learning\House Price Prediction"
+cd path\to\project\folder
 ```
 
 2. Create a virtual environment:
