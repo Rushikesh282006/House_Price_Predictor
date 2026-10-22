@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>California House Price Predictor | AI Valuation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #080d1a;
+        --panel: rgba(14, 23, 42, 0.85);
+        --panel-border: rgba(255, 255, 255, 0.08);
+        --accent: #38bdf8;
+        --accent-2: #818cf8;
+        --accent-gradient: linear-gradient(135deg, #38bdf8 0%, #6366f1 100%);
+        --text: #f1f5f9;
+        --text-muted: #94a3b8;
+        --success: #34d399;
+        --danger: #f87171;
+        --input-bg: rgba(15, 23, 42, 0.7);
+        --input-border: rgba(255, 255, 255, 0.12);
+        --radius-lg: 24px;
+        --radius-md: 14px;
+        --radius-sm: 8px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+        background: radial-gradient(ellipse at 15% 0%, rgba(56, 189, 248, 0.12) 0%, transparent 45%),
+          radial-gradient(ellipse at 85% 15%, rgba(99, 102, 241, 0.12) 0%, transparent 45%),
+          radial-gradient(circle at 50% 90%, rgba(14, 165, 233, 0.06) 0%, transparent 60%),
+          var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        line-height: 1.5;
+        padding-bottom: 40px;
+      }
+
+      .container {
+        max-width: 1240px;
+        margin: 0 auto;
+        padding: 36px 24px 48px;
+      }
+
+      /* Card base */
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        border-radius: var(--radius-lg);
+        box-shadow: 0 20px 45px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+      }
+
+      /* Hero Section: perfectly balanced grid and matched stretch height */
+      .hero {
+        display: grid;
+        grid-template-columns: 1fr 1.12fr;
+        gap: 28px;
+        align-items: stretch;
+        margin-bottom: 28px;
+      }
+
+      .hero-card {
+        padding: 34px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(56, 189, 248, 0.1);
+        border: 1px solid rgba(56, 189, 248, 0.25);
+        color: var(--accent);
+        padding: 6px 14px;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        width: fit-content;
+        margin-bottom: 16px;
+      }
+
+      .pulse-dot {
+        width: 8px;
+        height: 8px;
+        background: var(--accent);
+        border-radius: 50%;
+        box-shadow: 0 0 10px var(--accent);
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.4; transform: scale(0.85); }
+      }
+
+      .hero h1 {
+        font-family: 'Outfit', sans-serif;
+        font-size: 2.35rem;
+        font-weight: 700;
+        line-height: 1.18;
+        letter-spacing: -0.02em;
+        margin: 0 0 14px;
+        background: linear-gradient(135deg, #ffffff 40%, #cbd5e1 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .hero p {
+        color: var(--text-muted);
+        font-size: 1rem;
+        line-height: 1.62;
+        margin: 0 0 24px;
+      }
+
+      /* Quick Presets Section */
+      .presets-container {
+        background: rgba(255, 255, 255, 0.025);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: var(--radius-md);
+        padding: 14px 16px;
+        margin-bottom: 24px;
+      }
+
+      .presets-header {
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-muted);
+        font-weight: 600;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .preset-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .preset-chip {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #e2e8f0;
+        padding: 7px 12px;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .preset-chip:hover {
+        background: rgba(56, 189, 248, 0.15);
+        border-color: rgba(56, 189, 248, 0.4);
+        color: var(--accent);
+        transform: translateY(-1px);
+      }
+
+      /* Stats box in hero - anchored neatly at bottom */
+      .stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        margin-top: auto;
+      }
+
+      .stat {
+        padding: 16px;
+        border-radius: var(--radius-md);
+        background: rgba(255, 255, 255, 0.035);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        transition: border-color 0.2s;
+      }
+
+      .stat:hover {
+        border-color: rgba(255, 255, 255, 0.12);
+      }
+
+      .stat .label {
+        color: var(--text-muted);
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        font-weight: 600;
+      }
+
+      .stat .value {
+        font-family: 'Outfit', sans-serif;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #ffffff;
+        margin-top: 6px;
+      }
+
+      /* Panel (Right Card) */
+      .panel {
+        padding: 30px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Tab Switcher: sleek modern segmented control */
+      .tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        background: rgba(15, 23, 42, 0.9);
+        padding: 5px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        margin-bottom: 22px;
+        gap: 4px;
+      }
+
+      .tab-btn {
+        background: transparent;
+        color: var(--text-muted);
+        border: none;
+        padding: 10px 18px;
+        border-radius: 999px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        text-align: center;
+      }
+
+      .tab-btn.active {
+        background: var(--accent-gradient);
+        color: #ffffff;
+        box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+      }
+
+      .tab-btn:hover:not(.active) {
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .tab-panel {
+        display: none;
+      }
+
+      .tab-panel.active {
+        display: block;
+      }
+
+      /* Form Layout: 2-column balanced input grid */
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px 14px;
+      }
+
+      .field-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .field-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #cbd5e1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .field-label .sub {
+        font-size: 0.76rem;
+        color: var(--text-muted);
+        font-weight: 400;
+      }
+
+      input[type="number"],
+      select {
+        width: 100%;
+        padding: 10px 13px;
+        border-radius: 11px;
+        border: 1px solid var(--input-border);
+        background: var(--input-bg);
+        color: #ffffff;
+        font-size: 0.92rem;
+        font-family: inherit;
+        outline: none;
+        transition: all 0.2s ease;
+      }
+
+      input[type="number"]:focus,
+      select:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+        background: rgba(15, 23, 42, 0.95);
+      }
+
+      .field-error {
+        color: var(--danger);
+        font-size: 0.76rem;
+        min-height: 0;
+        line-height: 1.2;
+        transition: all 0.2s;
+      }
+
+      .field-error:empty {
+        display: none;
+      }
+
+      /* Form Actions */
+      .actions {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        margin-top: 18px;
+        align-items: center;
+      }
+
+      button {
+        border: none;
+        cursor: pointer;
+        padding: 12px 22px;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 0.92rem;
+        font-family: inherit;
+        transition: all 0.2s ease;
+      }
+
+      .primary {
+        background: var(--accent-gradient);
+        color: #ffffff;
+        box-shadow: 0 6px 20px -4px rgba(56, 189, 248, 0.4);
+      }
+
+      .primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 24px -3px rgba(56, 189, 248, 0.5);
+      }
+
+      .primary:active {
+        transform: translateY(0);
+      }
+
+      .secondary {
+        background: rgba(255, 255, 255, 0.06);
+        color: #cbd5e1;
+        border: 1px solid rgba(255, 255, 255, 0.09);
+      }
+
+      .secondary:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+      }
+
+      /* Result display */
+      .result {
+        margin-top: 16px;
+        padding: 18px 20px;
+        border-radius: var(--radius-md);
+        background: rgba(52, 211, 153, 0.1);
+        border: 1px solid rgba(52, 211, 153, 0.25);
+        color: var(--success);
+        display: none;
+        animation: fadeIn 0.3s ease-out;
+      }
+
+      .result.show {
+        display: block;
+      }
+
+      .result.error {
+        background: rgba(248, 113, 113, 0.1);
+        border-color: rgba(248, 113, 113, 0.3);
+        color: var(--danger);
+      }
+
+      .result-card-inner {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .result-badge {
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 700;
+        color: var(--success);
+        opacity: 0.9;
+      }
+
+      .result-price {
+        font-family: 'Outfit', sans-serif;
+        font-size: 2rem;
+        font-weight: 800;
+        color: #ffffff;
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+      }
+
+      .result-range {
+        font-size: 0.88rem;
+        color: rgba(255, 255, 255, 0.8);
+        font-weight: 500;
+        margin-top: 2px;
+      }
+
+      .result-error-content {
+        font-size: 0.9rem;
+        line-height: 1.5;
+        font-weight: 500;
+      }
+
+      /* File Upload Tab */
+      .upload-box {
+        border: 2px dashed rgba(255, 255, 255, 0.15);
+        padding: 34px 20px;
+        border-radius: var(--radius-md);
+        text-align: center;
+        color: var(--text-muted);
+        background: rgba(255, 255, 255, 0.02);
+        transition: all 0.2s ease;
+      }
+
+      .upload-box:hover {
+        border-color: var(--accent);
+        background: rgba(56, 189, 248, 0.03);
+      }
+
+      .upload-icon {
+        font-size: 2.2rem;
+        margin-bottom: 10px;
+        display: block;
+      }
+
+      .upload-box p {
+        margin: 0 0 16px;
+        font-size: 0.92rem;
+        color: var(--text-muted);
+        max-width: 420px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .upload-box input[type="file"] {
+        margin: 0 auto 16px;
+        display: block;
+        font-size: 0.88rem;
+        color: var(--text-muted);
+      }
+
+      /* Bottom Grid: symmetrically aligned */
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 28px;
+      }
+
+      .info-card {
+        padding: 28px;
+      }
+
+      .info-card h2 {
+        font-family: 'Outfit', sans-serif;
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin: 0 0 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #ffffff;
+      }
+
+      .info-card ul {
+        margin: 0;
+        padding-left: 20px;
+        color: var(--text-muted);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        font-size: 0.93rem;
+      }
+
+      .info-card li strong {
+        color: #e2e8f0;
+      }
+
+      footer {
+        text-align: center;
+        color: var(--text-muted);
+        margin-top: 36px;
+        font-size: 0.86rem;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(4px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 1024px) {
+        .hero {
+          grid-template-columns: 1fr;
+        }
+        .stats {
+          margin-top: 24px;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .container {
+          padding: 20px 14px 40px;
+        }
+        .hero-card, .panel, .info-card {
+          padding: 22px 18px;
+        }
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        .hero h1 {
+          font-size: 1.85rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Hero and Predictor in balanced alignment -->
+      <section class="hero">
+        <div class="card hero-card">
+          <div>
+            <div class="badge">
+              <span class="pulse-dot"></span>
+              California Housing AI
+            </div>
+            <h1>Forecast California home prices in seconds</h1>
+            <p>
+              Harness a high-performance machine learning model trained on California census districts to estimate real estate market valuations accurately.
+            </p>
+
+            <div class="presets-container">
+              <div class="presets-header">⚡ One-click California sample presets:</div>
+              <div class="preset-chips">
+                <button type="button" class="preset-chip" data-preset="coastal">🌊 Coastal Luxury</button>
+                <button type="button" class="preset-chip" data-preset="suburban">🏡 Suburban Family</button>
+                <button type="button" class="preset-chip" data-preset="inland">🌲 Central Valley</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="stats">
+            <div class="stat">
+              <div class="label">Model Architecture</div>
+              <div class="value">RandomForest</div>
+            </div>
+            <div class="stat">
+              <div class="label">Average Error Band</div>
+              <div class="value">±$32,800</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card panel">
+          <div class="tabs">
+            <button class="tab-btn active" type="button" data-tab="single">Single Prediction</button>
+            <button class="tab-btn" type="button" data-tab="file">Batch CSV Prediction</button>
+          </div>
+
+          <div id="singleTab" class="tab-panel active">
+            <form id="predictForm" novalidate>
+              <div class="form-grid">
+                <div class="field-group">
+                  <div class="field-label">
+                    <span>Median Income</span>
+                    <span class="sub">$10k units</span>
+                  </div>
+                  <input id="MedInc" type="number" step="0.01" value="3.5" placeholder="e.g. 3.5" />
+                  <div class="field-error" id="error-MedInc"></div>
+                </div>
+
+                <div class="field-group">
+                  <div class="field-label">
+                    <span>House Age</span>
+                    <span class="sub">years</span>
+                  </div>
+                  <input id="HouseAge" type="number" step="0.1" value="20" placeholder="e.g. 20" />
+                  <div class="field-error" id="error-HouseAge"></div>
+                </div>
+
+                <div class="field-group">
+                  <div class="field-label">
+                    <span>Average Rooms</span>
+                    <span class="sub">per house</span>
+                  </div>
+                  <input id="AveRooms" type="number" step="0.1" value="6.5" placeholder="e.g. 6.5" />
+                  <div class="field-error" id="error-AveRooms"></div>
+                </div>
+
+                <div class="field-group">
+                  <div class="field-label">
+                    <span>Average Bedrooms</span>
+                    <span class="sub">per house</span>
+                  </div>
+                  <input id="AveBedrms" type="number" step="0.1" value="1.2" placeholder="e.g. 1.2" />
+                  <div class="field-error" id="error-AveBedrms"></div>
+                </div>
+
+                <div class="field-group">
+                  <div class="field-label">
+                    <span>Population</span>
+                    <span class="sub">block group</span>
+                  </div>
+                  <input id="Population" type="number" step="1" value="1200" placeholder="e.g. 1200" />
+                  <div class="field-error" id="error-Population"></div>
+                </div>
+
+                <div class="field-group">
+                  <div class="field-label">
+                    <span>Average Occupancy</span>
+                    <span class="sub">members</span>
+                  </div>
+                  <input id="AveOccup" type="number" step="0.1" value="2.5" placeholder="e.g. 2.5" />
+                  <div class="field-error" id="error-AveOccup"></div>
+                </div>
+
+                <div class="field-group">
+                  <div class="field-label">
+                    <span>Latitude</span>
+                    <span class="sub">31.0 to 42.0</span>
+                  </div>
+                  <input id="Latitude" type="number" step="0.01" value="36.5" placeholder="e.g. 36.5" />
+                  <div class="field-error" id="error-Latitude"></div>
+                </div>
+
+                <div class="field-group">
+                  <div class="field-label">
+                    <span>Longitude</span>
+                    <span class="sub">-125.0 to -114.0</span>
+                  </div>
+                  <input id="Longitude" type="number" step="0.01" value="-119.5" placeholder="e.g. -119.5" />
+                  <div class="field-error" id="error-Longitude"></div>
+                </div>
+              </div>
+
+              <div class="actions">
+                <button class="primary" type="submit">Predict Home Price</button>
+                <button class="secondary" type="button" id="resetSingle">Reset</button>
+              </div>
+
+              <div id="result" class="result"></div>
+            </form>
+          </div>
+
+          <div id="fileTab" class="tab-panel">
+            <div class="upload-box">
+              <span class="upload-icon">📁</span>
+              <p>Upload a CSV file containing the 8 required housing features to generate and download batch price estimates.</p>
+              <input id="csvFile" type="file" accept=".csv" />
+              <div class="actions" style="justify-content: center; display: flex;">
+                <button class="primary" id="uploadBtn" type="button">Upload & Predict Batch</button>
+              </div>
+              <div id="uploadResult" class="result"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bottom Guidance Section -->
+      <section class="grid">
+        <div class="card info-card">
+          <h2>💡 How to Use This Estimator</h2>
+          <ul>
+            <li><strong>Single Property Tab:</strong> Adjust individual parameters or click one of the quick presets to test California scenarios.</li>
+            <li><strong>Instant Calculation:</strong> Real-time validation checks bounds and inputs before dispatching the request to the FastAPI server.</li>
+            <li><strong>Batch Processing:</strong> Upload a standardized CSV to receive predictions appended to every row in a downloaded CSV file.</li>
+          </ul>
+        </div>
+        <div class="card info-card">
+          <h2>📊 Expected Feature Specifications</h2>
+          <ul>
+            <li><strong>Median Income:</strong> Measured in tens of thousands of dollars ($10,000s) for the census block.</li>
+            <li><strong>Geographic Coordinates:</strong> California latitude range (31° to 42° N) and longitude range (-125° to -114° W).</li>
+            <li><strong>Valuation Band:</strong> Returns the predicted price alongside the ±$32,800 empirical model confidence interval.</li>
+          </ul>
+        </div>
+      </section>
+
+      <footer>Built with FastAPI, Scikit-Learn RandomForest, and modern responsive UI.</footer>
+    </div>
+
+    <script>
+      const form = document.getElementById('predictForm');
+      const result = document.getElementById('result');
+      const uploadBtn = document.getElementById('uploadBtn');
+      const uploadResult = document.getElementById('uploadResult');
+      const tabButtons = document.querySelectorAll('.tab-btn');
+      const tabPanels = document.querySelectorAll('.tab-panel');
+      const resetSingleBtn = document.getElementById('resetSingle');
+
+      // Preset configurations
+      const presets = {
+        coastal: {
+          MedInc: 8.32,
+          HouseAge: 25,
+          AveRooms: 7.2,
+          AveBedrms: 1.1,
+          Population: 850,
+          AveOccup: 2.3,
+          Latitude: 37.80,
+          Longitude: -122.42,
+        },
+        suburban: {
+          MedInc: 5.2,
+          HouseAge: 18,
+          AveRooms: 6.0,
+          AveBedrms: 1.05,
+          Population: 1650,
+          AveOccup: 3.1,
+          Latitude: 38.58,
+          Longitude: -121.49,
+        },
+        inland: {
+          MedInc: 2.8,
+          HouseAge: 32,
+          AveRooms: 5.1,
+          AveBedrms: 1.08,
+          Population: 2100,
+          AveOccup: 3.4,
+          Latitude: 36.74,
+          Longitude: -119.78,
+        },
+      };
+
+      document.querySelectorAll('.preset-chip').forEach((button) => {
+        button.addEventListener('click', () => {
+          const presetKey = button.dataset.preset;
+          const data = presets[presetKey];
+          if (!data) return;
+
+          // Switch to single tab if not already active
+          const singleTabBtn = document.querySelector('[data-tab="single"]');
+          if (singleTabBtn) singleTabBtn.click();
+
+          for (const [key, val] of Object.entries(data)) {
+            const input = document.getElementById(key);
+            if (input) input.value = val;
+          }
+          clearFieldErrors();
+        });
+      });
+
+      function showResult(element, message, isError = false) {
+        if (!message) {
+          element.innerHTML = '';
+          element.className = 'result';
+          return;
+        }
+
+        if (isError) {
+          element.innerHTML = `<div class="result-error-content">⚠️ ${message}</div>`;
+          element.className = 'result show error';
+        } else {
+          // If single prediction string like "$106,374\nConfidence range: $73,574 to $139,174"
+          if (message.includes('\n')) {
+            const parts = message.split('\n');
+            const price = parts[0] || '';
+            const range = parts[1] || '';
+            element.innerHTML = `
+              <div class="result-card-inner">
+                <div class="result-badge">⚡ Estimated Market Valuation</div>
+                <div class="result-price">${price}</div>
+                <div class="result-range">${range}</div>
+              </div>
+            `;
+          } else {
+            element.innerHTML = `<div class="result-card-inner"><div class="result-range">${message}</div></div>`;
+          }
+          element.className = 'result show';
+        }
+      }
+
+      function clearFieldErrors() {
+        document.querySelectorAll('.field-error').forEach((node) => {
+          node.textContent = '';
+        });
+      }
+
+      function validateInputs() {
+        clearFieldErrors();
+        const errors = [];
+        const constraints = [
+          { id: 'MedInc', min: 0, max: 55, label: 'Median income' },
+          { id: 'HouseAge', min: 0, max: 100, label: 'House age' },
+          { id: 'AveRooms', min: 0.0001, max: null, label: 'Average rooms' },
+          { id: 'AveBedrms', min: 0.0001, max: null, label: 'Average bedrooms' },
+          { id: 'Population', min: 0, max: 10000, label: 'Population' },
+          { id: 'AveOccup', min: 0.0001, max: null, label: 'Average occupancy' },
+          { id: 'Latitude', min: 31, max: 42, label: 'Latitude' },
+          { id: 'Longitude', min: -125, max: -114, label: 'Longitude' },
+        ];
+
+        for (const rule of constraints) {
+          const input = document.getElementById(rule.id);
+          const value = Number(input.value);
+          const errorNode = document.getElementById(`error-${rule.id}`);
+
+          if (!Number.isFinite(value)) {
+            errors.push(`${rule.label} must be a valid number.`);
+            if (errorNode) errorNode.textContent = 'Please enter a number';
+            continue;
+          }
+
+          if (value < rule.min || (rule.max !== null && value > rule.max)) {
+            const maxText = rule.max === null ? 'or more' : rule.max;
+            errors.push(`${rule.label} must be between ${rule.min} and ${maxText}.`);
+            if (errorNode) errorNode.textContent = `Must be ${rule.min} to ${maxText}`;
+          }
+        }
+
+        if (errors.length) {
+          showResult(result, errors.join(' | '), true);
+          return false;
+        }
+
+        showResult(result, '');
+        return true;
+      }
+
+      tabButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          tabButtons.forEach((btn) => btn.classList.remove('active'));
+          tabPanels.forEach((panel) => panel.classList.remove('active'));
+          button.classList.add('active');
+          const panel = document.getElementById(`${button.dataset.tab}Tab`);
+          if (panel) panel.classList.add('active');
+        });
+      });
+
+      resetSingleBtn.addEventListener('click', () => {
+        form.reset();
+        clearFieldErrors();
+        result.className = 'result';
+        result.innerHTML = '';
+      });
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (!validateInputs()) return;
+
+        const payload = {
+          MedInc: Number(document.getElementById('MedInc').value),
+          HouseAge: Number(document.getElementById('HouseAge').value),
+          AveRooms: Number(document.getElementById('AveRooms').value),
+          AveBedrms: Number(document.getElementById('AveBedrms').value),
+          Population: Number(document.getElementById('Population').value),
+          AveOccup: Number(document.getElementById('AveOccup').value),
+          Latitude: Number(document.getElementById('Latitude').value),
+          Longitude: Number(document.getElementById('Longitude').value),
+        };
+
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const origText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Calculating...';
+
+        try {
+          const response = await fetch('/predict', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.detail || 'Prediction failed');
+          showResult(result, `${data.predicted_price}\nConfidence range: ${data.confidence_range}`);
+        } catch (error) {
+          showResult(result, error.message, true);
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = origText;
+        }
+      });
+
+      uploadBtn.addEventListener('click', async () => {
+        const fileInput = document.getElementById('csvFile');
+        const file = fileInput.files[0];
+        if (!file) {
+          showResult(uploadResult, 'Please choose a CSV file first.', true);
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        uploadBtn.disabled = true;
+        const origText = uploadBtn.textContent;
+        uploadBtn.textContent = 'Processing Batch...';
+
+        try {
+          const response = await fetch('/predict-file', {
+            method: 'POST',
+            body: formData,
+          });
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || 'Upload failed');
+          }
+
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = 'prediction.csv';
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          window.URL.revokeObjectURL(url);
+          showResult(uploadResult, 'CSV predictions downloaded successfully.');
+        } catch (error) {
+          showResult(uploadResult, error.message, true);
+        } finally {
+          uploadBtn.disabled = false;
+          uploadBtn.textContent = origText;
+        }
+      });
+    </script>
+  </body>
+</html>

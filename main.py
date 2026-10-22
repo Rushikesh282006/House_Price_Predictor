@@ -1,15 +1,22 @@
+import io
+from pathlib import Path
+
 import joblib as jb
 import pandas as pd
-from fastapi import FastAPI,HTTPException,UploadFile,File
-from pydantic import BaseModel,Field
-import io
-from fastapi.responses import StreamingResponse
+from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel, Field
 
 
-app = FastAPI()
+BASE_DIR = Path(__file__).resolve().parent
+FRONTEND_DIR = BASE_DIR / "frontend"
 
-model = jb.load("house_price_predictor.joblib")
-features = jb.load("house_features.joblib")
+app = FastAPI(title="California House Price Predictor")
+app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
+
+model = jb.load(BASE_DIR / "house_price_predictor.joblib")
+features = jb.load(BASE_DIR / "house_features.joblib")
 avg_error = 32800
 #input 
 class Model_Input(BaseModel):
@@ -22,13 +29,10 @@ class Model_Input(BaseModel):
     Latitude : float = Field(gt=31, le=42,description="Latitude of house")
     Longitude : float = Field(gt=-125, le=-114,description="Longitude of house")
 
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 def home():
-    return {
-        "message" : "California house prediction api",
-        "status" : "running",
-        "endpoint" : "send POST request to /predict"
-        }
+    index_html = (FRONTEND_DIR / "index.html").read_text(encoding="utf-8")
+    return HTMLResponse(index_html)
 
 @app.get('/health')
 def health():
@@ -112,3 +116,4 @@ async def predFile(file:UploadFile=File(...)):
             status_code=500,
             detail=f"Prediction failed:{str(e)}"
         )
+    

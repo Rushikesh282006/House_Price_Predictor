@@ -29,5 +29,5 @@ print(f"Mean Absolute Error: ${mae*100000:,.0f}")
 
 print(f"R2 score:{r2}")
 
-jb.dump(model,"house_price_predictor.joblib")
+jb.dump(model,"house_price_predictor.joblib", compress=3)
 jb.dump(list(X.columns),"house_features.joblib")
